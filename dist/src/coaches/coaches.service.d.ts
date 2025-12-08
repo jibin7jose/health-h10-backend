@@ -8,10 +8,10 @@ export declare class CoachesService {
         password_hash: string | null;
         created_at: Date;
         updated_at: Date;
+        role: string | null;
         club_id: string;
         coach_id: string;
         coach_name: string | null;
-        role: string | null;
         coach_image: string | null;
         location: string | null;
     }, never, import("@prisma/client/runtime/library").DefaultArgs, import("@prisma/client").Prisma.PrismaClientOptions>;
@@ -21,10 +21,10 @@ export declare class CoachesService {
         password_hash: string | null;
         created_at: Date;
         updated_at: Date;
+        role: string | null;
         club_id: string;
         coach_id: string;
         coach_name: string | null;
-        role: string | null;
         coach_image: string | null;
         location: string | null;
     }[]>;

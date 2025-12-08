@@ -46,32 +46,93 @@ exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const bcrypt = __importStar(require("bcrypt"));
+const jwt_1 = require("@nestjs/jwt");
 let AuthService = class AuthService {
     prisma;
-    constructor(prisma) {
+    jwt;
+    constructor(prisma, jwt) {
         this.prisma = prisma;
+        this.jwt = jwt;
     }
-    async login(email, password) {
+    buildUserResponse(user) {
+        const { password_hash, ...safeUser } = user;
+        return safeUser;
+    }
+    signToken(userId, email, role) {
+        return this.jwt.sign({ sub: userId, email, role });
+    }
+    async register(dto) {
+        const existingAdmin = await this.prisma.superAdmin.findFirst();
+        if (existingAdmin) {
+            throw new common_1.BadRequestException('Super Admin already exists. New registration is disabled.');
+        }
+        const password_hash = await bcrypt.hash(dto.password, 10);
+        const user = await this.prisma.superAdmin.create({
+            data: {
+                name: dto.name || null,
+                email: dto.email,
+                phone: dto.phone || null,
+                password_hash,
+                profile_image: null,
+            },
+        });
+        const access_token = this.signToken(user.super_admin_id, user.email, 'SUPER_ADMIN');
+        return {
+            message: 'Super Admin created successfully',
+            access_token,
+            role: 'SUPER_ADMIN',
+            user: this.buildUserResponse(user),
+        };
+    }
+    async login(dto) {
         const user = await this.prisma.superAdmin.findUnique({
-            where: { email },
+            where: { email: dto.email },
         });
         if (!user) {
             throw new common_1.UnauthorizedException('User not found');
         }
-        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-        if (!isPasswordValid) {
+        const isValid = await bcrypt.compare(dto.password, user.password_hash);
+        if (!isValid) {
             throw new common_1.UnauthorizedException('Invalid password');
         }
+        const access_token = this.signToken(user.super_admin_id, user.email, 'SUPER_ADMIN');
         return {
             message: 'Login successful',
+            access_token,
             role: 'SUPER_ADMIN',
-            userId: user.super_admin_id,
+            user: this.buildUserResponse(user),
         };
+    }
+    async getProfileFromToken(authHeader) {
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            throw new common_1.UnauthorizedException('Missing auth token');
+        }
+        const token = authHeader.split(' ')[1];
+        let payload;
+        try {
+            payload = this.jwt.verify(token);
+        }
+        catch (e) {
+            throw new common_1.UnauthorizedException('Invalid token');
+        }
+        const user = await this.prisma.superAdmin.findUnique({
+            where: { super_admin_id: payload.sub },
+            select: {
+                name: true,
+                email: true,
+                phone: true,
+            },
+        });
+        if (!user) {
+            throw new common_1.UnauthorizedException('User not found');
+        }
+        return user;
     }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        jwt_1.JwtService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

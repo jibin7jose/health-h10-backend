@@ -5,7 +5,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/exceptions/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
-import { PaymentPlansModule } from './payment-plans/payment-plans.module';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -22,4 +21,5 @@ async function bootstrap() {
   await app.listen(port);
   console.log(`Server running on http://localhost:${port}`);
 }
+
 bootstrap();

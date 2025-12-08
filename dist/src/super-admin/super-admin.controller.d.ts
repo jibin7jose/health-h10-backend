@@ -5,30 +5,30 @@ export declare class SuperAdminController {
     constructor(svc: SuperAdminService);
     create(dto: CreateSuperAdminDto): Promise<{
         super_admin_id: string;
-        email: string | null;
+        email: string;
         name: string | null;
         phone: string | null;
-        password_hash: string | null;
+        password_hash: string;
         profile_image: string | null;
         created_at: Date;
         updated_at: Date;
     }>;
     findAll(): Promise<{
         super_admin_id: string;
-        email: string | null;
+        email: string;
         name: string | null;
         phone: string | null;
-        password_hash: string | null;
+        password_hash: string;
         profile_image: string | null;
         created_at: Date;
         updated_at: Date;
     }[]>;
     findOne(id: string): Promise<{
         super_admin_id: string;
-        email: string | null;
+        email: string;
         name: string | null;
         phone: string | null;
-        password_hash: string | null;
+        password_hash: string;
         profile_image: string | null;
         created_at: Date;
         updated_at: Date;

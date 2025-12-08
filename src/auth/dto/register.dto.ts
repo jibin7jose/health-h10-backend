@@ -1,11 +1,4 @@
-// src/auth/dto/register.dto.ts
-import { IsEmail, IsOptional, IsString, IsEnum } from 'class-validator';
-
-export enum UserRole {
-  SUPER_ADMIN = 'super_admin',
-  CLUB_ADMIN = 'club_admin',
-  COACH = 'coach',
-}
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class RegisterDto {
   @IsOptional()
@@ -21,11 +14,4 @@ export class RegisterDto {
 
   @IsString()
   password: string;
-
-  @IsEnum(UserRole)   // ✅ ensures role is one of these values
-  role: UserRole;
-
-  @IsOptional()
-  @IsString()
-  clubId?: string;  // needed for club_admin/coach
 }
