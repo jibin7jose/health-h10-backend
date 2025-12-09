@@ -30,18 +30,19 @@ model Club {
   super_admin_id String?  @db.Uuid
   club_name      String?
   address        String?
+  sport          String?
   status         String?  @default("active")
   created_at     DateTime @default(now()) @db.Timestamptz(6)
   updated_at     DateTime @default(now()) @db.Timestamptz(6)
 
   super_admin SuperAdmin? @relation("superadmin_clubs", fields: [super_admin_id], references: [super_admin_id], onDelete: SetNull)
 
-  club_admins      ClubAdmin[]
-  coaches          Coach[]
-  players          Player[]
-  events           Event[]
-  subscriptions    Subscription[]
-  service_requests ServiceRequest[]
+  club_admins     ClubAdmin[]
+  coaches         Coach[]
+  players         Player[]
+  events          Event[]
+  subscriptions   Subscription[]
+  serviceRequests ServiceRequest[]
 
   @@map("clubs")
 }

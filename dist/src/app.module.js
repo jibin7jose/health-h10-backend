@@ -26,6 +26,7 @@ const subscriptions_module_1 = require("./subscriptions/subscriptions.module");
 const service_requests_module_1 = require("./service-requests/service-requests.module");
 const analytics_module_1 = require("./analytics/analytics.module");
 const payment_plans_module_1 = require("./payment-plans/payment-plans.module");
+const pod_holders_module_1 = require("./pod-holders/pod-holders.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -41,6 +42,7 @@ exports.AppModule = AppModule = __decorate([
             coaches_module_1.CoachesModule,
             players_module_1.PlayersModule,
             payment_plans_module_1.PaymentPlansModule,
+            pod_holders_module_1.PodHoldersModule,
             pods_module_1.PodsModule,
             assignments_module_1.AssignmentsModule,
             events_module_1.EventsModule,

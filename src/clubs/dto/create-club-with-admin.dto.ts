@@ -1,27 +1,27 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateClubDto {
   @IsString()
+  @IsNotEmpty()
   club_name: string;
 
-  @IsOptional()
   @IsString()
-  address?: string;
+  address: string;
 
-  @IsOptional()
   @IsString()
-  sport?: string;
+  sport: string;
 
-  // ✅ CLUB ADMIN INFO (FROM FRONTEND)
+  // ✅ CLUB ADMIN
   @IsString()
   admin_name: string;
 
-  @IsString()
+  @IsEmail()
   admin_email: string;
 
-  @IsString()
+  @MinLength(6)
   admin_password: string;
 
+  // ✅ OPTIONAL POD HOLDER
   @IsOptional()
   @IsString()
   pod_holder_id?: string;

@@ -21,8 +21,30 @@ export declare class AuthService {
         user: any;
     }>;
     getProfileFromToken(authHeader: string): Promise<{
-        email: string;
-        name: string | null;
-        phone: string | null;
+        role: string;
+        user: {
+            super_admin_id: string;
+            email: string;
+            name: string | null;
+            phone: string | null;
+        } | null;
+    } | {
+        role: string;
+        user: {
+            email: string | null;
+            name: string | null;
+            phone: string | null;
+            admin_id: string;
+            club_id: string;
+        } | null;
+    } | {
+        role: string;
+        user: {
+            email: string | null;
+            phone: string | null;
+            club_id: string;
+            coach_id: string;
+            coach_name: string | null;
+        } | null;
     }>;
 }

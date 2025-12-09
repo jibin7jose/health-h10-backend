@@ -1,7 +1,7 @@
 import { ClubAdminService } from './club-admin.service';
 import { CreateClubAdminDto } from './dto/create-club-admin.dto';
 export declare class ClubAdminController {
-    private svc;
+    private readonly svc;
     constructor(svc: ClubAdminService);
     create(dto: CreateClubAdminDto): Promise<{
         email: string | null;
@@ -11,8 +11,8 @@ export declare class ClubAdminController {
         profile_image: string | null;
         created_at: Date;
         updated_at: Date;
-        club_id: string;
         admin_id: string;
+        club_id: string;
     }>;
     findAll(): import("@prisma/client").Prisma.PrismaPromise<{
         email: string | null;
@@ -22,7 +22,7 @@ export declare class ClubAdminController {
         profile_image: string | null;
         created_at: Date;
         updated_at: Date;
-        club_id: string;
         admin_id: string;
+        club_id: string;
     }[]>;
 }

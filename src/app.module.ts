@@ -17,7 +17,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { ServiceRequestsModule } from './service-requests/service-requests.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { PaymentPlansModule } from './payment-plans/payment-plans.module';
-
+import { PodHoldersModule } from './pod-holders/pod-holders.module';
 
 @Module({
   imports: [
@@ -30,6 +30,7 @@ import { PaymentPlansModule } from './payment-plans/payment-plans.module';
     CoachesModule,
     PlayersModule,
     PaymentPlansModule,
+    PodHoldersModule,
     PodsModule,
     AssignmentsModule,
     EventsModule,

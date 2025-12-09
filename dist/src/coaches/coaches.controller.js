@@ -16,25 +16,44 @@ exports.CoachesController = void 0;
 const common_1 = require("@nestjs/common");
 const coaches_service_1 = require("./coaches.service");
 const create_coach_dto_1 = require("./dto/create-coach.dto");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../auth/guards/roles.guard");
+const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 let CoachesController = class CoachesController {
     svc;
     constructor(svc) {
         this.svc = svc;
     }
-    create(dto) {
-        return this.svc.create(dto);
+    async create(req, dto) {
+        const club_id = req.user?.club_id;
+        if (!club_id) {
+            throw new common_1.BadRequestException('club_id missing in token. Please logout and login again.');
+        }
+        return this.svc.create({
+            ...dto,
+            club_id,
+        });
     }
     findAll() {
         return this.svc.findAll();
     }
+    async assign(body) {
+        if (!body.coach_id || !body.pod_holder_id) {
+            throw new common_1.BadRequestException('coach_id and pod_holder_id are required');
+        }
+        return this.svc.assignPodHolder(body.coach_id, body.pod_holder_id);
+    }
 };
 exports.CoachesController = CoachesController;
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('CLUB_ADMIN'),
     (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_coach_dto_1.CreateCoachDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [Object, create_coach_dto_1.CreateCoachDto]),
+    __metadata("design:returntype", Promise)
 ], CoachesController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
@@ -42,6 +61,15 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], CoachesController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('CLUB_ADMIN'),
+    (0, common_1.Post)('assign-pod-holder'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], CoachesController.prototype, "assign", null);
 exports.CoachesController = CoachesController = __decorate([
     (0, common_1.Controller)('coaches'),
     __metadata("design:paramtypes", [coaches_service_1.CoachesService])

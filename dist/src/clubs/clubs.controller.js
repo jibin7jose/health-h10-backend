@@ -15,14 +15,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClubsController = void 0;
 const common_1 = require("@nestjs/common");
 const clubs_service_1 = require("./clubs.service");
-const create_club_dto_1 = require("./dto/create-club.dto");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../auth/guards/roles.guard");
+const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 let ClubsController = class ClubsController {
     svc;
     constructor(svc) {
         this.svc = svc;
     }
-    create(dto) {
-        return this.svc.create(null, dto);
+    create(req, dto) {
+        const super_admin_id = req.user.sub;
+        return this.svc.create(super_admin_id, dto);
     }
     findAll() {
         return this.svc.findAll();
@@ -33,10 +36,13 @@ let ClubsController = class ClubsController {
 };
 exports.ClubsController = ClubsController;
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('SUPER_ADMIN'),
     (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_club_dto_1.CreateClubDto]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], ClubsController.prototype, "create", null);
 __decorate([

@@ -58,8 +58,8 @@ let AuthService = class AuthService {
         const { password_hash, ...safeUser } = user;
         return safeUser;
     }
-    signToken(userId, email, role) {
-        return this.jwt.sign({ sub: userId, email, role });
+    signToken(payload) {
+        return this.jwt.sign(payload);
     }
     async register(dto) {
         const existingAdmin = await this.prisma.superAdmin.findFirst();
@@ -76,7 +76,11 @@ let AuthService = class AuthService {
                 profile_image: null,
             },
         });
-        const access_token = this.signToken(user.super_admin_id, user.email, 'SUPER_ADMIN');
+        const access_token = this.signToken({
+            sub: user.super_admin_id,
+            email: user.email,
+            role: 'SUPER_ADMIN',
+        });
         return {
             message: 'Super Admin created successfully',
             access_token,
@@ -85,23 +89,66 @@ let AuthService = class AuthService {
         };
     }
     async login(dto) {
-        const user = await this.prisma.superAdmin.findUnique({
+        const superAdmin = await this.prisma.superAdmin.findUnique({
             where: { email: dto.email },
         });
-        if (!user) {
-            throw new common_1.UnauthorizedException('User not found');
+        if (superAdmin) {
+            const valid = await bcrypt.compare(dto.password, superAdmin.password_hash);
+            if (!valid)
+                throw new common_1.UnauthorizedException('Invalid password');
+            const access_token = this.signToken({
+                sub: superAdmin.super_admin_id,
+                email: superAdmin.email,
+                role: 'SUPER_ADMIN',
+            });
+            return {
+                message: 'Login successful',
+                access_token,
+                role: 'SUPER_ADMIN',
+                user: this.buildUserResponse(superAdmin),
+            };
         }
-        const isValid = await bcrypt.compare(dto.password, user.password_hash);
-        if (!isValid) {
-            throw new common_1.UnauthorizedException('Invalid password');
+        const clubAdmin = await this.prisma.clubAdmin.findUnique({
+            where: { email: dto.email },
+        });
+        if (clubAdmin) {
+            const valid = await bcrypt.compare(dto.password, clubAdmin.password_hash);
+            if (!valid)
+                throw new common_1.UnauthorizedException('Invalid password');
+            const access_token = this.signToken({
+                sub: clubAdmin.admin_id,
+                email: clubAdmin.email,
+                role: 'CLUB_ADMIN',
+                club_id: clubAdmin.club_id,
+            });
+            return {
+                message: 'Login successful',
+                access_token,
+                role: 'CLUB_ADMIN',
+                user: this.buildUserResponse(clubAdmin),
+            };
         }
-        const access_token = this.signToken(user.super_admin_id, user.email, 'SUPER_ADMIN');
-        return {
-            message: 'Login successful',
-            access_token,
-            role: 'SUPER_ADMIN',
-            user: this.buildUserResponse(user),
-        };
+        const coach = await this.prisma.coach.findUnique({
+            where: { email: dto.email },
+        });
+        if (coach) {
+            const valid = await bcrypt.compare(dto.password, coach.password_hash);
+            if (!valid)
+                throw new common_1.UnauthorizedException('Invalid password');
+            const access_token = this.signToken({
+                sub: coach.coach_id,
+                email: coach.email,
+                role: 'COACH',
+                club_id: coach.club_id,
+            });
+            return {
+                message: 'Login successful',
+                access_token,
+                role: 'COACH',
+                user: this.buildUserResponse(coach),
+            };
+        }
+        throw new common_1.UnauthorizedException('User not found');
     }
     async getProfileFromToken(authHeader) {
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -115,18 +162,45 @@ let AuthService = class AuthService {
         catch (e) {
             throw new common_1.UnauthorizedException('Invalid token');
         }
-        const user = await this.prisma.superAdmin.findUnique({
-            where: { super_admin_id: payload.sub },
-            select: {
-                name: true,
-                email: true,
-                phone: true,
-            },
-        });
-        if (!user) {
-            throw new common_1.UnauthorizedException('User not found');
+        if (payload.role === 'SUPER_ADMIN') {
+            const user = await this.prisma.superAdmin.findUnique({
+                where: { super_admin_id: payload.sub },
+                select: {
+                    super_admin_id: true,
+                    name: true,
+                    email: true,
+                    phone: true,
+                },
+            });
+            return { role: 'SUPER_ADMIN', user };
         }
-        return user;
+        if (payload.role === 'CLUB_ADMIN') {
+            const user = await this.prisma.clubAdmin.findUnique({
+                where: { admin_id: payload.sub },
+                select: {
+                    admin_id: true,
+                    name: true,
+                    email: true,
+                    phone: true,
+                    club_id: true,
+                },
+            });
+            return { role: 'CLUB_ADMIN', user };
+        }
+        if (payload.role === 'COACH') {
+            const user = await this.prisma.coach.findUnique({
+                where: { coach_id: payload.sub },
+                select: {
+                    coach_id: true,
+                    coach_name: true,
+                    email: true,
+                    phone: true,
+                    club_id: true,
+                },
+            });
+            return { role: 'COACH', user };
+        }
+        throw new common_1.UnauthorizedException('Invalid role');
     }
 };
 exports.AuthService = AuthService;

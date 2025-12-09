@@ -16,31 +16,27 @@ exports.PodHoldersController = void 0;
 const common_1 = require("@nestjs/common");
 const pod_holders_service_1 = require("./pod-holders.service");
 const create_pod_holder_dto_1 = require("./dto/create-pod-holder.dto");
-const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
-const roles_guard_1 = require("../auth/guards/roles.guard");
-const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 let PodHoldersController = class PodHoldersController {
-    svc;
-    constructor(svc) {
-        this.svc = svc;
+    service;
+    constructor(service) {
+        this.service = service;
     }
     create(dto) {
-        return this.svc.create(dto);
+        return this.service.create(dto);
     }
     findAll() {
-        return this.svc.findAll();
+        return this.service.findAll();
     }
     findOne(id) {
-        return this.svc.findOne(id);
+        return this.service.findOne(id);
     }
-    delete(id) {
-        return this.svc.delete(id);
+    remove(id) {
+        return this.service.remove(id);
     }
 };
 exports.PodHoldersController = PodHoldersController;
 __decorate([
     (0, common_1.Post)(),
-    (0, roles_decorator_1.Roles)('super_admin', 'club_admin'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_pod_holder_dto_1.CreatePodHolderDto]),
@@ -61,15 +57,13 @@ __decorate([
 ], PodHoldersController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, roles_decorator_1.Roles)('super_admin'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
-], PodHoldersController.prototype, "delete", null);
+], PodHoldersController.prototype, "remove", null);
 exports.PodHoldersController = PodHoldersController = __decorate([
     (0, common_1.Controller)('pod-holders'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     __metadata("design:paramtypes", [pod_holders_service_1.PodHoldersService])
 ], PodHoldersController);
 //# sourceMappingURL=pod-holders.controller.js.map

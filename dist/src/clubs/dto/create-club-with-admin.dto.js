@@ -9,31 +9,46 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateCoachDto = void 0;
+exports.CreateClubDto = void 0;
 const class_validator_1 = require("class-validator");
-class CreateCoachDto {
-    coach_name;
-    email;
-    phone;
-    password;
+class CreateClubDto {
+    club_name;
+    address;
+    sport;
+    admin_name;
+    admin_email;
+    admin_password;
+    pod_holder_id;
 }
-exports.CreateCoachDto = CreateCoachDto;
+exports.CreateClubDto = CreateClubDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateClubDto.prototype, "club_name", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateCoachDto.prototype, "coach_name", void 0);
+], CreateClubDto.prototype, "address", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateClubDto.prototype, "sport", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateClubDto.prototype, "admin_name", void 0);
 __decorate([
     (0, class_validator_1.IsEmail)(),
     __metadata("design:type", String)
-], CreateCoachDto.prototype, "email", void 0);
+], CreateClubDto.prototype, "admin_email", void 0);
+__decorate([
+    (0, class_validator_1.MinLength)(6),
+    __metadata("design:type", String)
+], CreateClubDto.prototype, "admin_password", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateCoachDto.prototype, "phone", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.MinLength)(6),
-    __metadata("design:type", String)
-], CreateCoachDto.prototype, "password", void 0);
-//# sourceMappingURL=create-coach.dto.js.map
+], CreateClubDto.prototype, "pod_holder_id", void 0);
+//# sourceMappingURL=create-club-with-admin.dto.js.map

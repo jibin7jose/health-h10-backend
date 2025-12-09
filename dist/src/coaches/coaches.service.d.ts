@@ -2,7 +2,13 @@ import { PrismaService } from '../prisma/prisma.service';
 export declare class CoachesService {
     private prisma;
     constructor(prisma: PrismaService);
-    create(dto: any): import("@prisma/client").Prisma.Prisma__CoachClient<{
+    create(dto: {
+        coach_name: string;
+        email: string;
+        password: string;
+        phone?: string;
+        club_id: string;
+    }): Promise<{
         email: string | null;
         phone: string | null;
         password_hash: string | null;
@@ -14,7 +20,7 @@ export declare class CoachesService {
         coach_name: string | null;
         coach_image: string | null;
         location: string | null;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs, import("@prisma/client").Prisma.PrismaClientOptions>;
+    }>;
     findAll(): import("@prisma/client").Prisma.PrismaPromise<{
         email: string | null;
         phone: string | null;
@@ -28,4 +34,12 @@ export declare class CoachesService {
         coach_image: string | null;
         location: string | null;
     }[]>;
+    assignPodHolder(coach_id: string, pod_holder_id: string): Promise<{
+        coach_id: string | null;
+        assignment_id: string;
+        pod_id: string | null;
+        pod_holder_id: string | null;
+        player_id: string | null;
+        assigned_at: Date;
+    }>;
 }

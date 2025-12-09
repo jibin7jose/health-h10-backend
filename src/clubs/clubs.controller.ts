@@ -1,15 +1,30 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import type { Request } from 'express';
+
 import { ClubsService } from './clubs.service';
-import { CreateClubDto } from './dto/create-club.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('clubs')
 export class ClubsController {
-  constructor(private svc: ClubsService) {}
+  constructor(private readonly svc: ClubsService) {}
 
+  // ✅ ONLY SUPER ADMIN CAN CREATE CLUB
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPER_ADMIN')
   @Post()
-  create(@Body() dto: CreateClubDto) {
-    // provide super_admin_id if available in auth; for now null
-    return this.svc.create(null, dto);
+  create(@Req() req: Request, @Body() dto: any) {
+    const super_admin_id = (req as any).user.sub; // ✅ FIXED
+    return this.svc.create(super_admin_id, dto);
   }
 
   @Get()

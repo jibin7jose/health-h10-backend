@@ -17,26 +17,23 @@ let PodHoldersService = class PodHoldersService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async create(dto) {
+    create(data) {
         return this.prisma.podHolder.create({
-            data: {
-                serial_number: dto.serial_number,
-                model: dto.model,
-            },
+            data,
         });
     }
-    async findAll() {
+    findAll() {
         return this.prisma.podHolder.findMany();
     }
-    async findOne(id) {
-        const ph = await this.prisma.podHolder.findUnique({ where: { pod_holder_id: id } });
-        if (!ph)
-            throw new common_1.NotFoundException('Pod holder not found');
-        return ph;
+    findOne(id) {
+        return this.prisma.podHolder.findUnique({
+            where: { pod_holder_id: id },
+        });
     }
-    async delete(id) {
-        await this.findOne(id);
-        return this.prisma.podHolder.delete({ where: { pod_holder_id: id } });
+    remove(id) {
+        return this.prisma.podHolder.delete({
+            where: { pod_holder_id: id },
+        });
     }
 };
 exports.PodHoldersService = PodHoldersService;

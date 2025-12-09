@@ -21,7 +21,8 @@ let RolesGuard = class RolesGuard {
         const roles = this.reflector.get('roles', context.getHandler());
         if (!roles)
             return true;
-        const user = context.switchToHttp().getRequest().user;
+        const req = context.switchToHttp().getRequest();
+        const user = req.user;
         return roles.includes(user?.role);
     }
 };

@@ -8,8 +8,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PodHoldersModule = void 0;
 const common_1 = require("@nestjs/common");
-const pod_holders_controller_1 = require("./pod-holders.controller");
 const pod_holders_service_1 = require("./pod-holders.service");
+const pod_holders_controller_1 = require("./pod-holders.controller");
 const prisma_module_1 = require("../prisma/prisma.module");
 let PodHoldersModule = class PodHoldersModule {
 };
@@ -19,7 +19,6 @@ exports.PodHoldersModule = PodHoldersModule = __decorate([
         imports: [prisma_module_1.PrismaModule],
         controllers: [pod_holders_controller_1.PodHoldersController],
         providers: [pod_holders_service_1.PodHoldersService],
-        exports: [pod_holders_service_1.PodHoldersService],
     })
 ], PodHoldersModule);
 //# sourceMappingURL=pod-holders.module.js.map

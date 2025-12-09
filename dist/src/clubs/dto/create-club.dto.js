@@ -14,6 +14,11 @@ const class_validator_1 = require("class-validator");
 class CreateClubDto {
     club_name;
     address;
+    sport;
+    admin_name;
+    admin_email;
+    admin_password;
+    pod_holder_id;
 }
 exports.CreateClubDto = CreateClubDto;
 __decorate([
@@ -25,4 +30,26 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateClubDto.prototype, "address", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateClubDto.prototype, "sport", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateClubDto.prototype, "admin_name", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateClubDto.prototype, "admin_email", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateClubDto.prototype, "admin_password", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateClubDto.prototype, "pod_holder_id", void 0);
 //# sourceMappingURL=create-club.dto.js.map

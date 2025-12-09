@@ -10,8 +10,8 @@ export declare class ClubAdminService {
         profile_image: string | null;
         created_at: Date;
         updated_at: Date;
-        club_id: string;
         admin_id: string;
+        club_id: string;
     }>;
     findAll(): import("@prisma/client").Prisma.PrismaPromise<{
         email: string | null;
@@ -21,7 +21,7 @@ export declare class ClubAdminService {
         profile_image: string | null;
         created_at: Date;
         updated_at: Date;
-        club_id: string;
         admin_id: string;
+        club_id: string;
     }[]>;
 }
