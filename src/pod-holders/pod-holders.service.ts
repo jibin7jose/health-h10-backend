@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -17,17 +17,35 @@ export class PodHoldersService {
     return this.prisma.podHolder.findMany();
   }
 
-  // ✅ GET SINGLE POD HOLDER
-  findOne(id: string) {
-    return this.prisma.podHolder.findUnique({
-      where: { pod_holder_id: id },
+  // ✅ ✅ ✅ GET ONLY UNASSIGNED POD HOLDERS
+  findAvailable() {
+    return this.prisma.podHolder.findMany({
+      where: {
+        coach_assignments: { none: {} },
+        player_pod_holders: { none: {} },
+      },
     });
   }
 
-  // ✅ DELETE POD HOLDER
-  remove(id: string) {
-    return this.prisma.podHolder.delete({
+  // ✅ GET SINGLE POD HOLDER
+  async findOne(id: string) {
+    const pod = await this.prisma.podHolder.findUnique({
       where: { pod_holder_id: id },
     });
+
+    if (!pod) {
+      throw new NotFoundException('Pod holder not found');
+    }
+
+    return pod;
+  }
+
+  // ✅ DELETE POD HOLDER
+  async remove(id: string) {
+    await this.prisma.podHolder.delete({
+      where: { pod_holder_id: id },
+    });
+
+    return { message: 'Pod holder deleted successfully' };
   }
 }

@@ -12,10 +12,16 @@ export class PodHoldersController {
     return this.service.create(dto);
   }
 
-  // ✅ GET ALL POD HOLDERS
+  // ✅ GET ALL POD HOLDERS (ADMIN USE)
   @Get()
   findAll() {
     return this.service.findAll();
+  }
+
+  // ✅ ✅ ✅ GET ONLY AVAILABLE / UNASSIGNED POD HOLDERS
+  @Get('available')
+  findAvailable() {
+    return this.service.findAvailable();
   }
 
   // ✅ GET ONE POD HOLDER

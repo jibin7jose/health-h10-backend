@@ -34,8 +34,12 @@ let CoachesController = class CoachesController {
             club_id,
         });
     }
-    findAll() {
-        return this.svc.findAll();
+    async getMyClubCoaches(req) {
+        const club_id = req.user?.club_id;
+        if (!club_id) {
+            throw new common_1.BadRequestException('club_id missing in token');
+        }
+        return this.svc.findByClub(club_id);
     }
     async assign(body) {
         if (!body.coach_id || !body.pod_holder_id) {
@@ -56,11 +60,14 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CoachesController.prototype, "create", null);
 __decorate([
-    (0, common_1.Get)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('CLUB_ADMIN'),
+    (0, common_1.Get)('my-club'),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], CoachesController.prototype, "findAll", null);
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], CoachesController.prototype, "getMyClubCoaches", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('CLUB_ADMIN'),

@@ -21,7 +21,7 @@ export declare class CoachesService {
         coach_image: string | null;
         location: string | null;
     }>;
-    findAll(): import("@prisma/client").Prisma.PrismaPromise<{
+    findByClub(club_id: string): Promise<{
         email: string | null;
         phone: string | null;
         password_hash: string | null;

@@ -19,18 +19,21 @@ export declare class PodHoldersService {
         serial_number: string | null;
         model: string | null;
     }[]>;
-    findOne(id: string): import("@prisma/client").Prisma.Prisma__PodHolderClient<{
+    findAvailable(): import("@prisma/client").Prisma.PrismaPromise<{
         created_at: Date;
         updated_at: Date;
         pod_holder_id: string;
         serial_number: string | null;
         model: string | null;
-    } | null, null, import("@prisma/client/runtime/library").DefaultArgs, import("@prisma/client").Prisma.PrismaClientOptions>;
-    remove(id: string): import("@prisma/client").Prisma.Prisma__PodHolderClient<{
+    }[]>;
+    findOne(id: string): Promise<{
         created_at: Date;
         updated_at: Date;
         pod_holder_id: string;
         serial_number: string | null;
         model: string | null;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs, import("@prisma/client").Prisma.PrismaClientOptions>;
+    }>;
+    remove(id: string): Promise<{
+        message: string;
+    }>;
 }

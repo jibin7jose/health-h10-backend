@@ -27,6 +27,9 @@ let PodHoldersController = class PodHoldersController {
     findAll() {
         return this.service.findAll();
     }
+    findAvailable() {
+        return this.service.findAvailable();
+    }
     findOne(id) {
         return this.service.findOne(id);
     }
@@ -48,6 +51,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], PodHoldersController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('available'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], PodHoldersController.prototype, "findAvailable", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

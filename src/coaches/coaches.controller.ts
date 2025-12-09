@@ -25,7 +25,6 @@ export class CoachesController {
   async create(@Req() req: any, @Body() dto: CreateCoachDto) {
     const club_id = req.user?.club_id;
 
-    // ✅ ✅ ✅ SAFETY CHECK — PREVENTS 500 INTERNAL SERVER ERROR
     if (!club_id) {
       throw new BadRequestException(
         'club_id missing in token. Please logout and login again.',
@@ -38,13 +37,21 @@ export class CoachesController {
     });
   }
 
-  // ✅ OPTIONAL: GET ALL COACHES
-  @Get()
-  findAll() {
-    return this.svc.findAll();
+  // ✅ ✅ ✅ ONLY LOGGED-IN CLUB ADMIN CAN SEE THEIR COACHES
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('CLUB_ADMIN')
+  @Get('my-club')
+  async getMyClubCoaches(@Req() req: any) {
+    const club_id = req.user?.club_id;
+
+    if (!club_id) {
+      throw new BadRequestException('club_id missing in token');
+    }
+
+    return this.svc.findByClub(club_id);
   }
 
-  // ✅ ✅ ✅ ASSIGN POD HOLDER TO COACH
+  // ✅ ✅ ✅ SAFE POD HOLDER ASSIGNMENT
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('CLUB_ADMIN')
   @Post('assign-pod-holder')

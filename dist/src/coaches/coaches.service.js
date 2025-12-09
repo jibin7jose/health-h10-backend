@@ -64,10 +64,26 @@ let CoachesService = class CoachesService {
             },
         });
     }
-    findAll() {
-        return this.prisma.coach.findMany();
+    async findByClub(club_id) {
+        return this.prisma.coach.findMany({
+            where: {
+                club_id,
+            },
+            orderBy: {
+                created_at: 'desc',
+            },
+        });
     }
     async assignPodHolder(coach_id, pod_holder_id) {
+        const coachUse = await this.prisma.coachAssignment.findFirst({
+            where: { pod_holder_id },
+        });
+        const playerUse = await this.prisma.playerPodHolder.findFirst({
+            where: { pod_holder_id },
+        });
+        if (coachUse || playerUse) {
+            throw new common_1.BadRequestException('This pod holder is already assigned and cannot be reused');
+        }
         return this.prisma.coachAssignment.create({
             data: {
                 coach_id,

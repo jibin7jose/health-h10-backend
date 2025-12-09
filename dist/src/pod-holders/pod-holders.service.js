@@ -25,15 +25,28 @@ let PodHoldersService = class PodHoldersService {
     findAll() {
         return this.prisma.podHolder.findMany();
     }
-    findOne(id) {
-        return this.prisma.podHolder.findUnique({
-            where: { pod_holder_id: id },
+    findAvailable() {
+        return this.prisma.podHolder.findMany({
+            where: {
+                coach_assignments: { none: {} },
+                player_pod_holders: { none: {} },
+            },
         });
     }
-    remove(id) {
-        return this.prisma.podHolder.delete({
+    async findOne(id) {
+        const pod = await this.prisma.podHolder.findUnique({
             where: { pod_holder_id: id },
         });
+        if (!pod) {
+            throw new common_1.NotFoundException('Pod holder not found');
+        }
+        return pod;
+    }
+    async remove(id) {
+        await this.prisma.podHolder.delete({
+            where: { pod_holder_id: id },
+        });
+        return { message: 'Pod holder deleted successfully' };
     }
 };
 exports.PodHoldersService = PodHoldersService;
