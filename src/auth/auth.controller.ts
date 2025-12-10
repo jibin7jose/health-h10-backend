@@ -1,25 +1,32 @@
 import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-  async register(@Body() dto: RegisterDto) {
+  register(@Body() dto) {
     return this.authService.register(dto);
   }
 
   @Post('login')
-  async login(@Body() dto: LoginDto) {
+  login(@Body() dto) {
     return this.authService.login(dto);
   }
 
-  // ✅ PROFILE ENDPOINT FOR NAVBAR
   @Get('profile')
-  async profile(@Headers('authorization') authHeader: string) {
+  profile(@Headers('authorization') authHeader: string) {
     return this.authService.getProfileFromToken(authHeader);
+  }
+
+  @Post('forgot-password')
+  forgot(@Body('email') email: string) {
+    return this.authService.forgotPassword(email);
+  }
+
+  @Post('reset-password')
+  reset(@Body() body: { token: string; password: string }) {
+    return this.authService.resetPassword(body.token, body.password);
   }
 }

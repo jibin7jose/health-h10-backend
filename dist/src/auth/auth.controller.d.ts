@@ -1,16 +1,14 @@
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
 export declare class AuthController {
     private authService;
     constructor(authService: AuthService);
-    register(dto: RegisterDto): Promise<{
+    register(dto: any): Promise<{
         message: string;
         access_token: string;
         role: string;
         user: any;
     }>;
-    login(dto: LoginDto): Promise<{
+    login(dto: any): Promise<{
         message: string;
         access_token: string;
         role: string;
@@ -23,6 +21,12 @@ export declare class AuthController {
             email: string;
             name: string | null;
             phone: string | null;
+            password_hash: string;
+            profile_image: string | null;
+            reset_token: string | null;
+            reset_token_expires: Date | null;
+            created_at: Date;
+            updated_at: Date;
         } | null;
     } | {
         role: string;
@@ -30,6 +34,12 @@ export declare class AuthController {
             email: string | null;
             name: string | null;
             phone: string | null;
+            password_hash: string | null;
+            profile_image: string | null;
+            reset_token: string | null;
+            reset_token_expires: Date | null;
+            created_at: Date;
+            updated_at: Date;
             admin_id: string;
             club_id: string;
         } | null;
@@ -38,9 +48,26 @@ export declare class AuthController {
         user: {
             email: string | null;
             phone: string | null;
+            password_hash: string | null;
+            reset_token: string | null;
+            reset_token_expires: Date | null;
+            created_at: Date;
+            updated_at: Date;
             club_id: string;
             coach_id: string;
             coach_name: string | null;
+            role: string | null;
+            coach_image: string | null;
+            location: string | null;
         } | null;
+    }>;
+    forgot(email: string): Promise<{
+        message: string;
+    }>;
+    reset(body: {
+        token: string;
+        password: string;
+    }): Promise<{
+        message: string;
     }>;
 }

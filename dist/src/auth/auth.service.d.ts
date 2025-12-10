@@ -2,10 +2,12 @@ import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { MailService } from '../mail/mail.service';
 export declare class AuthService {
     private prisma;
     private jwt;
-    constructor(prisma: PrismaService, jwt: JwtService);
+    private mailService;
+    constructor(prisma: PrismaService, jwt: JwtService, mailService: MailService);
     private buildUserResponse;
     private signToken;
     register(dto: RegisterDto): Promise<{
@@ -27,6 +29,12 @@ export declare class AuthService {
             email: string;
             name: string | null;
             phone: string | null;
+            password_hash: string;
+            profile_image: string | null;
+            reset_token: string | null;
+            reset_token_expires: Date | null;
+            created_at: Date;
+            updated_at: Date;
         } | null;
     } | {
         role: string;
@@ -34,6 +42,12 @@ export declare class AuthService {
             email: string | null;
             name: string | null;
             phone: string | null;
+            password_hash: string | null;
+            profile_image: string | null;
+            reset_token: string | null;
+            reset_token_expires: Date | null;
+            created_at: Date;
+            updated_at: Date;
             admin_id: string;
             club_id: string;
         } | null;
@@ -42,9 +56,23 @@ export declare class AuthService {
         user: {
             email: string | null;
             phone: string | null;
+            password_hash: string | null;
+            reset_token: string | null;
+            reset_token_expires: Date | null;
+            created_at: Date;
+            updated_at: Date;
             club_id: string;
             coach_id: string;
             coach_name: string | null;
+            role: string | null;
+            coach_image: string | null;
+            location: string | null;
         } | null;
+    }>;
+    forgotPassword(email: string): Promise<{
+        message: string;
+    }>;
+    resetPassword(token: string, password: string): Promise<{
+        message: string;
     }>;
 }

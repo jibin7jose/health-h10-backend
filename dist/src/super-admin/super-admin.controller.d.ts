@@ -10,6 +10,8 @@ export declare class SuperAdminController {
         phone: string | null;
         password_hash: string;
         profile_image: string | null;
+        reset_token: string | null;
+        reset_token_expires: Date | null;
         created_at: Date;
         updated_at: Date;
     }>;
@@ -20,6 +22,8 @@ export declare class SuperAdminController {
         phone: string | null;
         password_hash: string;
         profile_image: string | null;
+        reset_token: string | null;
+        reset_token_expires: Date | null;
         created_at: Date;
         updated_at: Date;
     }[]>;
@@ -30,6 +34,8 @@ export declare class SuperAdminController {
         phone: string | null;
         password_hash: string;
         profile_image: string | null;
+        reset_token: string | null;
+        reset_token_expires: Date | null;
         created_at: Date;
         updated_at: Date;
     } | null>;
