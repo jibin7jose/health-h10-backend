@@ -1,4 +1,5 @@
 export declare class MailService {
-    private transporter;
-    sendResetPasswordEmail(email: string, token: string): Promise<void>;
+    transporter: any;
+    sendLoginOtpEmail(email: string, otp: string): Promise<void>;
+    sendResetPasswordEmail(email: string, otp: string): Promise<void>;
 }

@@ -1,20 +1,30 @@
 import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 export declare class AuthController {
     private authService;
     constructor(authService: AuthService);
-    register(dto: any): Promise<{
+    register(dto: RegisterDto): Promise<{
         message: string;
         access_token: string;
         role: string;
         user: any;
     }>;
-    login(dto: any): Promise<{
+    login(dto: LoginDto): Promise<{
+        needOtp: boolean;
+        email: string | null;
+        message: string;
+    }>;
+    verifyLoginOtp(body: {
+        email: string;
+        otp: string;
+    }): Promise<{
         message: string;
         access_token: string;
         role: string;
         user: any;
     }>;
-    profile(authHeader: string): Promise<{
+    profile(header: string): Promise<{
         role: string;
         user: {
             super_admin_id: string;
@@ -25,6 +35,8 @@ export declare class AuthController {
             profile_image: string | null;
             reset_token: string | null;
             reset_token_expires: Date | null;
+            login_otp: string | null;
+            login_otp_expires: Date | null;
             created_at: Date;
             updated_at: Date;
         } | null;
@@ -38,6 +50,8 @@ export declare class AuthController {
             profile_image: string | null;
             reset_token: string | null;
             reset_token_expires: Date | null;
+            login_otp: string | null;
+            login_otp_expires: Date | null;
             created_at: Date;
             updated_at: Date;
             admin_id: string;
@@ -51,6 +65,8 @@ export declare class AuthController {
             password_hash: string | null;
             reset_token: string | null;
             reset_token_expires: Date | null;
+            login_otp: string | null;
+            login_otp_expires: Date | null;
             created_at: Date;
             updated_at: Date;
             club_id: string;

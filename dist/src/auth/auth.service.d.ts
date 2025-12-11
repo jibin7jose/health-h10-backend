@@ -17,6 +17,11 @@ export declare class AuthService {
         user: any;
     }>;
     login(dto: LoginDto): Promise<{
+        needOtp: boolean;
+        email: string | null;
+        message: string;
+    }>;
+    verifyLoginOtp(email: string, otp: string): Promise<{
         message: string;
         access_token: string;
         role: string;
@@ -33,6 +38,8 @@ export declare class AuthService {
             profile_image: string | null;
             reset_token: string | null;
             reset_token_expires: Date | null;
+            login_otp: string | null;
+            login_otp_expires: Date | null;
             created_at: Date;
             updated_at: Date;
         } | null;
@@ -46,6 +53,8 @@ export declare class AuthService {
             profile_image: string | null;
             reset_token: string | null;
             reset_token_expires: Date | null;
+            login_otp: string | null;
+            login_otp_expires: Date | null;
             created_at: Date;
             updated_at: Date;
             admin_id: string;
@@ -59,6 +68,8 @@ export declare class AuthService {
             password_hash: string | null;
             reset_token: string | null;
             reset_token_expires: Date | null;
+            login_otp: string | null;
+            login_otp_expires: Date | null;
             created_at: Date;
             updated_at: Date;
             club_id: string;
@@ -72,7 +83,7 @@ export declare class AuthService {
     forgotPassword(email: string): Promise<{
         message: string;
     }>;
-    resetPassword(token: string, password: string): Promise<{
+    resetPassword(token: string, newPassword: string): Promise<{
         message: string;
     }>;
 }

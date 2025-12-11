@@ -58,8 +58,8 @@ let AuthService = class AuthService {
         this.mailService = mailService;
     }
     buildUserResponse(user) {
-        const { password_hash, reset_token, reset_token_expires, ...safeUser } = user;
-        return safeUser;
+        const { password_hash, reset_token, reset_token_expires, login_otp, login_otp_expires, ...safe } = user;
+        return safe;
     }
     signToken(payload) {
         return this.jwt.sign(payload);
@@ -69,14 +69,13 @@ let AuthService = class AuthService {
         if (existingAdmin) {
             throw new common_1.BadRequestException('Super Admin already exists');
         }
-        const password_hash = await bcrypt.hash(dto.password, 10);
+        const hash = await bcrypt.hash(dto.password, 10);
         const user = await this.prisma.superAdmin.create({
             data: {
                 name: dto.name || null,
                 email: dto.email,
                 phone: dto.phone || null,
-                password_hash,
-                profile_image: null,
+                password_hash: hash,
             },
         });
         return {
@@ -91,178 +90,201 @@ let AuthService = class AuthService {
         };
     }
     async login(dto) {
-        const superAdmin = await this.prisma.superAdmin.findUnique({
-            where: { email: dto.email },
-        });
-        if (superAdmin) {
-            const valid = await bcrypt.compare(dto.password, superAdmin.password_hash);
-            if (!valid)
-                throw new common_1.UnauthorizedException('Invalid password');
-            return {
-                message: 'Login successful',
-                access_token: this.signToken({
-                    sub: superAdmin.super_admin_id,
-                    email: superAdmin.email,
-                    role: 'SUPER_ADMIN',
-                }),
-                role: 'SUPER_ADMIN',
-                user: this.buildUserResponse(superAdmin),
-            };
+        const user = (await this.prisma.superAdmin.findUnique({ where: { email: dto.email } })) ||
+            (await this.prisma.clubAdmin.findUnique({ where: { email: dto.email } })) ||
+            (await this.prisma.coach.findUnique({ where: { email: dto.email } }));
+        if (!user)
+            throw new common_1.UnauthorizedException('User not found');
+        const valid = await bcrypt.compare(dto.password, user.password_hash);
+        if (!valid)
+            throw new common_1.UnauthorizedException('Invalid password');
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expires = new Date(Date.now() + 10 * 60 * 1000);
+        let model, idField, idValue;
+        if ('super_admin_id' in user) {
+            model = this.prisma.superAdmin;
+            idField = 'super_admin_id';
+            idValue = user.super_admin_id;
         }
-        const clubAdmin = await this.prisma.clubAdmin.findUnique({
-            where: { email: dto.email },
-        });
-        if (clubAdmin) {
-            const valid = await bcrypt.compare(dto.password, clubAdmin.password_hash);
-            if (!valid)
-                throw new common_1.UnauthorizedException('Invalid password');
-            return {
-                message: 'Login successful',
-                access_token: this.signToken({
-                    sub: clubAdmin.admin_id,
-                    email: clubAdmin.email,
-                    role: 'CLUB_ADMIN',
-                }),
-                role: 'CLUB_ADMIN',
-                user: this.buildUserResponse(clubAdmin),
-            };
+        else if ('admin_id' in user) {
+            model = this.prisma.clubAdmin;
+            idField = 'admin_id';
+            idValue = user.admin_id;
         }
-        const coach = await this.prisma.coach.findUnique({
-            where: { email: dto.email },
-        });
-        if (coach) {
-            const valid = await bcrypt.compare(dto.password, coach.password_hash);
-            if (!valid)
-                throw new common_1.UnauthorizedException('Invalid password');
-            return {
-                message: 'Login successful',
-                access_token: this.signToken({
-                    sub: coach.coach_id,
-                    email: coach.email,
-                    role: 'COACH',
-                }),
-                role: 'COACH',
-                user: this.buildUserResponse(coach),
-            };
+        else {
+            model = this.prisma.coach;
+            idField = 'coach_id';
+            idValue = user.coach_id;
         }
-        throw new common_1.UnauthorizedException('User not found');
+        await model.update({
+            where: { [idField]: idValue },
+            data: {
+                login_otp: otp,
+                login_otp_expires: expires,
+            },
+        });
+        await this.mailService.sendLoginOtpEmail(user.email, otp);
+        return {
+            needOtp: true,
+            email: user.email,
+            message: "OTP sent to email"
+        };
+    }
+    async verifyLoginOtp(email, otp) {
+        const now = new Date();
+        const user = (await this.prisma.superAdmin.findFirst({
+            where: { email, login_otp: otp, login_otp_expires: { gt: now } },
+        })) ||
+            (await this.prisma.clubAdmin.findFirst({
+                where: { email, login_otp: otp, login_otp_expires: { gt: now } },
+            })) ||
+            (await this.prisma.coach.findFirst({
+                where: { email, login_otp: otp, login_otp_expires: { gt: now } },
+            }));
+        if (!user)
+            throw new common_1.UnauthorizedException('Invalid or expired OTP');
+        let role;
+        let model;
+        let idField;
+        let idValue;
+        if ('super_admin_id' in user) {
+            role = 'SUPER_ADMIN';
+            model = this.prisma.superAdmin;
+            idField = 'super_admin_id';
+            idValue = user.super_admin_id;
+        }
+        else if ('admin_id' in user) {
+            role = 'CLUB_ADMIN';
+            model = this.prisma.clubAdmin;
+            idField = 'admin_id';
+            idValue = user.admin_id;
+        }
+        else {
+            role = 'COACH';
+            model = this.prisma.coach;
+            idField = 'coach_id';
+            idValue = user.coach_id;
+        }
+        await model.update({
+            where: { [idField]: idValue },
+            data: {
+                login_otp: null,
+                login_otp_expires: null,
+            },
+        });
+        const token = this.signToken({
+            sub: idValue,
+            email: user.email,
+            role,
+        });
+        return {
+            message: 'Login successful',
+            access_token: token,
+            role,
+            user: this.buildUserResponse(user),
+        };
     }
     async getProfileFromToken(authHeader) {
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            throw new common_1.UnauthorizedException('Missing auth token');
-        }
+        if (!authHeader?.startsWith('Bearer '))
+            throw new common_1.UnauthorizedException('Missing token');
         const token = authHeader.split(' ')[1];
         const payload = this.jwt.verify(token);
         if (payload.role === 'SUPER_ADMIN') {
-            const user = await this.prisma.superAdmin.findUnique({
-                where: { super_admin_id: payload.sub },
-            });
-            return { role: 'SUPER_ADMIN', user };
+            return {
+                role: 'SUPER_ADMIN',
+                user: await this.prisma.superAdmin.findUnique({
+                    where: { super_admin_id: payload.sub },
+                }),
+            };
         }
         if (payload.role === 'CLUB_ADMIN') {
-            const user = await this.prisma.clubAdmin.findUnique({
-                where: { admin_id: payload.sub },
-            });
-            return { role: 'CLUB_ADMIN', user };
+            return {
+                role: 'CLUB_ADMIN',
+                user: await this.prisma.clubAdmin.findUnique({
+                    where: { admin_id: payload.sub },
+                }),
+            };
         }
-        if (payload.role === 'COACH') {
-            const user = await this.prisma.coach.findUnique({
+        return {
+            role: 'COACH',
+            user: await this.prisma.coach.findUnique({
                 where: { coach_id: payload.sub },
-            });
-            return { role: 'COACH', user };
-        }
-        throw new common_1.UnauthorizedException('Invalid role');
+            }),
+        };
     }
     async forgotPassword(email) {
-        const otp = Math.random().toString(36).substring(2, 8).toUpperCase();
-        const expiry = new Date();
-        expiry.setMinutes(expiry.getMinutes() + 10);
-        const admin = (await this.prisma.superAdmin.findUnique({ where: { email } })) ||
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expires = new Date(Date.now() + 10 * 60 * 1000);
+        const user = (await this.prisma.superAdmin.findUnique({ where: { email } })) ||
             (await this.prisma.clubAdmin.findUnique({ where: { email } })) ||
             (await this.prisma.coach.findUnique({ where: { email } }));
-        if (!admin) {
+        if (!user)
             return { message: 'If email exists, OTP sent' };
+        let model;
+        let idField;
+        let idValue;
+        if ('super_admin_id' in user) {
+            model = this.prisma.superAdmin;
+            idField = 'super_admin_id';
+            idValue = user.super_admin_id;
         }
-        const data = {
-            reset_token: otp,
-            reset_token_expires: expiry,
-        };
-        if ('super_admin_id' in admin) {
-            await this.prisma.superAdmin.update({
-                where: { super_admin_id: admin.super_admin_id },
-                data,
-            });
-        }
-        else if ('admin_id' in admin) {
-            await this.prisma.clubAdmin.update({
-                where: { admin_id: admin.admin_id },
-                data,
-            });
+        else if ('admin_id' in user) {
+            model = this.prisma.clubAdmin;
+            idField = 'admin_id';
+            idValue = user.admin_id;
         }
         else {
-            await this.prisma.coach.update({
-                where: { coach_id: admin.coach_id },
-                data,
-            });
+            model = this.prisma.coach;
+            idField = 'coach_id';
+            idValue = user.coach_id;
         }
+        await model.update({
+            where: { [idField]: idValue },
+            data: { reset_token: otp, reset_token_expires: expires },
+        });
         await this.mailService.sendResetPasswordEmail(email, otp);
         return { message: 'OTP sent to email' };
     }
-    async resetPassword(token, password) {
-        const cleanToken = token.trim().toUpperCase();
+    async resetPassword(token, newPassword) {
         const now = new Date();
         const user = (await this.prisma.superAdmin.findFirst({
-            where: {
-                reset_token: cleanToken,
-                reset_token_expires: { gt: now },
-            },
+            where: { reset_token: token, reset_token_expires: { gt: now } },
         })) ||
             (await this.prisma.clubAdmin.findFirst({
-                where: {
-                    reset_token: cleanToken,
-                    reset_token_expires: { gt: now },
-                },
+                where: { reset_token: token, reset_token_expires: { gt: now } },
             })) ||
             (await this.prisma.coach.findFirst({
-                where: {
-                    reset_token: cleanToken,
-                    reset_token_expires: { gt: now },
-                },
+                where: { reset_token: token, reset_token_expires: { gt: now } },
             }));
-        if (!user) {
+        if (!user)
             throw new common_1.BadRequestException('Invalid or expired OTP');
-        }
-        const hashed = await bcrypt.hash(password, 10);
+        const hashed = await bcrypt.hash(newPassword, 10);
+        let model;
+        let idField;
+        let idValue;
         if ('super_admin_id' in user) {
-            await this.prisma.superAdmin.update({
-                where: { super_admin_id: user.super_admin_id },
-                data: {
-                    password_hash: hashed,
-                    reset_token: null,
-                    reset_token_expires: null,
-                },
-            });
+            model = this.prisma.superAdmin;
+            idField = 'super_admin_id';
+            idValue = user.super_admin_id;
         }
         else if ('admin_id' in user) {
-            await this.prisma.clubAdmin.update({
-                where: { admin_id: user.admin_id },
-                data: {
-                    password_hash: hashed,
-                    reset_token: null,
-                    reset_token_expires: null,
-                },
-            });
+            model = this.prisma.clubAdmin;
+            idField = 'admin_id';
+            idValue = user.admin_id;
         }
         else {
-            await this.prisma.coach.update({
-                where: { coach_id: user.coach_id },
-                data: {
-                    password_hash: hashed,
-                    reset_token: null,
-                    reset_token_expires: null,
-                },
-            });
+            model = this.prisma.coach;
+            idField = 'coach_id';
+            idValue = user.coach_id;
         }
+        await model.update({
+            where: { [idField]: idValue },
+            data: {
+                password_hash: hashed,
+                reset_token: null,
+                reset_token_expires: null,
+            },
+        });
         return { message: 'Password updated successfully' };
     }
 };

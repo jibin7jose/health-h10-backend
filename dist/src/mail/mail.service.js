@@ -45,23 +45,22 @@ const nodemailer = __importStar(require("nodemailer"));
 let MailService = class MailService {
     transporter = nodemailer.createTransport({
         service: 'gmail',
-        auth: {
-            user: process.env.MAIL_USER,
-            pass: process.env.MAIL_PASS,
-        },
+        auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS },
     });
-    async sendResetPasswordEmail(email, token) {
-        const resetCode = token.slice(0, 6).toUpperCase();
+    async sendLoginOtpEmail(email, otp) {
         await this.transporter.sendMail({
             from: `"TABB APP" <${process.env.MAIL_USER}>`,
             to: email,
-            subject: 'Password Reset Verification Code',
-            html: `
-        <h2>Password Reset</h2>
-        <p>Your verification code is:</p>
-        <h1 style="letter-spacing:4px">${resetCode}</h1>
-        <p>This code expires in 30 minutes.</p>
-      `,
+            subject: 'Login Verification Code',
+            html: `<h2>Your Login OTP:</h2><h1>${otp}</h1><p>Valid for 10 minutes.</p>`,
+        });
+    }
+    async sendResetPasswordEmail(email, otp) {
+        await this.transporter.sendMail({
+            from: `"TABB APP" <${process.env.MAIL_USER}>`,
+            to: email,
+            subject: 'Password Reset Code',
+            html: `<h2>Password Reset</h2><h1>${otp}</h1><p>Valid for 10 minutes.</p>`,
         });
     }
 };

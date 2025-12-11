@@ -9,6 +9,8 @@ export declare class CoachesController {
         password_hash: string | null;
         reset_token: string | null;
         reset_token_expires: Date | null;
+        login_otp: string | null;
+        login_otp_expires: Date | null;
         created_at: Date;
         updated_at: Date;
         club_id: string;
@@ -24,6 +26,8 @@ export declare class CoachesController {
         password_hash: string | null;
         reset_token: string | null;
         reset_token_expires: Date | null;
+        login_otp: string | null;
+        login_otp_expires: Date | null;
         created_at: Date;
         updated_at: Date;
         club_id: string;

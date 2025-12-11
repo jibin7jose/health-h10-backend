@@ -24,6 +24,8 @@ export declare class ClubsService {
             profile_image: string | null;
             reset_token: string | null;
             reset_token_expires: Date | null;
+            login_otp: string | null;
+            login_otp_expires: Date | null;
             created_at: Date;
             updated_at: Date;
             admin_id: string;
@@ -48,6 +50,8 @@ export declare class ClubsService {
             profile_image: string | null;
             reset_token: string | null;
             reset_token_expires: Date | null;
+            login_otp: string | null;
+            login_otp_expires: Date | null;
             created_at: Date;
             updated_at: Date;
             admin_id: string;

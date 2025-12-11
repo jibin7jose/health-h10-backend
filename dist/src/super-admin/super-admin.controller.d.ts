@@ -12,6 +12,8 @@ export declare class SuperAdminController {
         profile_image: string | null;
         reset_token: string | null;
         reset_token_expires: Date | null;
+        login_otp: string | null;
+        login_otp_expires: Date | null;
         created_at: Date;
         updated_at: Date;
     }>;
@@ -24,6 +26,8 @@ export declare class SuperAdminController {
         profile_image: string | null;
         reset_token: string | null;
         reset_token_expires: Date | null;
+        login_otp: string | null;
+        login_otp_expires: Date | null;
         created_at: Date;
         updated_at: Date;
     }[]>;
@@ -36,6 +40,8 @@ export declare class SuperAdminController {
         profile_image: string | null;
         reset_token: string | null;
         reset_token_expires: Date | null;
+        login_otp: string | null;
+        login_otp_expires: Date | null;
         created_at: Date;
         updated_at: Date;
     } | null>;
